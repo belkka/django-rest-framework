@@ -68,13 +68,6 @@ def escape_curly_brackets(url_path):
     return url_path
 
 
-def flatten(list_of_lists):
-    """
-    Takes an iterable of iterables, returns a single iterable containing all items
-    """
-    return itertools.chain(*list_of_lists)
-
-
 class RenameRouterMethods(RenameMethodsBase):
     renamed_methods = (
         ('get_default_base_name', 'get_default_basename', PendingDeprecationWarning),
@@ -190,7 +183,9 @@ class SimpleRouter(BaseRouter):
         """
         # converting to list as iterables are good for one pass, known host needs to be checked again and again for
         # different functions.
-        known_actions = list(flatten([route.mapping.values() for route in self.routes if isinstance(route, Route)]))
+        known_actions = list(
+            itertools.chain.from_iterable(route.mapping.values() for route in self.routes if isinstance(route, Route))
+        )
         extra_actions = viewset.get_extra_actions()
 
         # checking action names against the known actions list
